@@ -6,6 +6,7 @@
 import GameView from "@/views/GameView.vue";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@/assets/base.css';
+
 export default {
   components: {GameView},
 }

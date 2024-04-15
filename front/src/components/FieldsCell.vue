@@ -48,7 +48,7 @@ export default {
   display: grid;
   padding: 8px;
 
-  &:hover .sub_cell {
+  &:hover .sub_cell:not(.signed) {
     background-color: #b6b4b4;
     cursor: pointer;
   }

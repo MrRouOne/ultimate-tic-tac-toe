@@ -4,6 +4,7 @@
 
 <script>
 import MainField from "@/components/MainField.vue";
+
 export default {
   components: {MainField},
 }
