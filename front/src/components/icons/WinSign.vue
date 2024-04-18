@@ -1,10 +1,10 @@
 <template>
-    <svg :viewBox="getViewBox" width="200" height="200">
-      <path
-          :d="getPath"
-          :style="{fill: this.getColor}"
-      />
-    </svg>
+  <svg :viewBox="getViewBox" :width="getWidthOrHeight" :height="getWidthOrHeight">
+    <path
+        :d="getPath"
+        :style="{fill: this.getColor}"
+    />
+  </svg>
 </template>
 
 <script>
@@ -29,8 +29,11 @@ export default {
       return signsStore?.getViewBox(this.store?.getSignWordBySign(this.sign));
     },
     getColor() {
-     return this.store?.getDefaultColorBySign(this.store?.getSignWordBySign(this.sign))
-    }
+      return this.store?.getDefaultColorBySign(this.store?.getSignWordBySign(this.sign))
+    },
+    getWidthOrHeight() {
+      return store.fieldSize * 56;
+    },
   },
   methods: {},
   watch: {},

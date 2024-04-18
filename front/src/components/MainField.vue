@@ -1,6 +1,6 @@
 <template>
   <div :style="mainFieldStyle">
-    <FieldsCell
+    <SubField
         v-for="(cell, index) in field"
         :key="index"
         :index="index"
@@ -9,11 +9,11 @@
 </template>
 
 <script>
-import FieldsCell from "@/components/FieldsCell.vue";
+import SubField from "@/components/SubField.vue";
 import {store} from "@/stores/store.js";
 
 export default {
-  components: {FieldsCell},
+  components: {SubField},
   data() {
     return {
       field: [],

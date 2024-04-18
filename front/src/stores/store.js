@@ -15,13 +15,29 @@ export const store = reactive({
         this.signToArrays = this.sign === 'cross' ? this.defaultCircleSign : this.defaultCrossSign
     },
     getDefaultColorBySign(sign = this.sign) {
-        return sign === 'cross' ? this.defaultCrossColor : this.defaultCircleColor
+        const values = {
+            cross: this.defaultCrossColor,
+            circle: this.defaultCircleColor,
+            draw: this.defaultDrawColor,
+        };
+        return values[sign]
     },
     getSignWordBySign(sign) {
-        return sign === this.defaultCrossSign ? 'cross' : 'circle'
+        const values = {
+            [this.defaultDrawSign]: 'draw',
+            [this.defaultCrossSign]: 'cross',
+            [this.defaultCircleSign]: 'circle',
+        };
+        return values[sign]
     },
     getMaxNumberSignsForWin() {
         return Math.min(5, this.fieldSize)
+    },
+    checkWinOrDraw(matrix, changedIndex, findSign) {
+        const isWin = this.checkWin(matrix, changedIndex, findSign)
+        if (isWin) return 'win';
+        const isDraw = !matrix.some(cell => cell.length === 0);
+        return isDraw ? 'draw' : 'nothing'
     },
     checkWin(matrix, changedIndex, findSign) {
         const changedIndexY = Math.floor(changedIndex / this.fieldSize)
@@ -33,7 +49,6 @@ export const store = reactive({
             || this.checkWinByDiagonal(matrix, changedIndexX, changedIndexY, findSign, true)
             || this.checkWinByDiagonal(matrix, changedIndexX, changedIndexY, findSign, false)
         )
-
     },
     checkWinByLine(matrix, x, y, findSign, isHorizontal = true) {
         const startIndex = isHorizontal
