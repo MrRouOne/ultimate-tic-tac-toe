@@ -15,15 +15,24 @@ export default {
       classes: {}
     }
   },
+  emits: ['setValueToSubField'],
+  props: ['index', 'isWin'],
   methods: {
     setSign() {
+      if (this.isWin) return
       this.$refs.signRef.setSign();
+      this.$emit('setValueToSubField', this.index)
     },
     setClass() {
       this.classes.signed = true
     }
   },
   mounted() {
+  },
+  watch: {
+    isWin() {
+      this.classes.blocked = true
+    }
   },
   computed: {},
 }
@@ -39,7 +48,7 @@ export default {
   justify-content: center;
   align-items: center;
 
-  &:not(.signed):hover {
+  &:not(.signed,.blocked):hover {
     background-color: #fff !important;
     cursor: pointer;
   }

@@ -1,50 +1,42 @@
 <template>
-  <div class="space">
-    <div class="main_field p-2" :style="gridStyle">
-      <FieldsCell
-          v-for="(cell, index) in mainField"
-          :key="index"
-          :index="index"
-          :fieldSize="fieldSize"
-      />
-    </div>
+  <div :style="mainFieldStyle">
+    <FieldsCell
+        v-for="(cell, index) in field"
+        :key="index"
+        :index="index"
+    />
   </div>
-
 </template>
 
 <script>
 import FieldsCell from "@/components/FieldsCell.vue";
+import {store} from "@/stores/store.js";
 
 export default {
   components: {FieldsCell},
   data() {
     return {
-      fieldSize: 3,
-      mainField: [],
+      field: [],
     }
   },
   methods: {
     fillStartField() {
-      for (let i = 0; i < this.fieldSize * this.fieldSize; i++) {
-        this.mainField.push([])
-      }
+      this.field = Array(store.fieldSize * store.fieldSize).fill([])
     }
   },
   mounted() {
     this.fillStartField()
   },
   computed: {
-    gridStyle() {
-      return {gridTemplateColumns: `repeat(${this.fieldSize}, 2fr)`,};
+    mainFieldStyle() {
+      return {
+        display:'grid',
+        gridTemplateColumns: `repeat(${store.fieldSize}, 2fr)`
+      };
     },
   },
 }
 </script>
 
 <style scoped>
-.main_field {
-  display: grid;
-  border-radius: 15px;
-}
-
 </style>
