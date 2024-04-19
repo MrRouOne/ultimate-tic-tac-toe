@@ -1,5 +1,10 @@
 <template>
-  <svg :viewBox="getViewBox" :width="getWidthOrHeight" :height="getWidthOrHeight">
+  <svg
+      :viewBox="getViewBox"
+      :width="getWidthOrHeight"
+      :height="getWidthOrHeight"
+      class="svg-container"
+  >
     <path
         :d="getPath"
         :style="{fill: this.getColor}"
@@ -15,12 +20,13 @@ export default {
   data() {
     return {
       store: null,
-      signsStore: null,
       path: '',
-      viewBox: ''
+      viewBox: '',
+      multiplier: 56,
+      isAnimating: false
     }
   },
-  props: ['sign'],
+  props: ['sign', 'subFieldIndex'],
   computed: {
     getPath() {
       return signsStore?.getPath(this.store?.getSignWordBySign(this.sign));
@@ -32,17 +38,32 @@ export default {
       return this.store?.getDefaultColorBySign(this.store?.getSignWordBySign(this.sign))
     },
     getWidthOrHeight() {
-      return store.fieldSize * 56;
+      return store.fieldSize * this.multiplier;
     },
   },
-  methods: {},
-  watch: {},
+  methods: {
+    changeSizeMultiplier() {
+      setInterval(() => {
+        this.multiplier = this.multiplier === 30 ? 56 : 30;
+      }, 1100)
+    },
+  },
+  watch: {
+    'store.winIndexes'(val) {
+      if (val.length && val.includes(this.subFieldIndex.toString())) {
+        this.changeSizeMultiplier()
+      }
+    }
+  },
   mounted() {
     this.store = store
-    this.signsStore = signsStore
   },
 }
 </script>
 
 <style scoped>
+.svg-container {
+  transition: width 1s ease, height 1s ease;
+}
+
 </style>

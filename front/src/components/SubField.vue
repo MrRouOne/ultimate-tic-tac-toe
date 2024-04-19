@@ -1,17 +1,18 @@
 <template>
 
-  <div class="subfield" :style="subfieldStyle">
+  <div class="subfield" :style="subfieldStyle" :class="{...subfieldClasses,...getActiveSubFieldClass}">
     <TransitionGroup>
       <div :class="overlayClasses" v-if="isWin" class="subfield_overlay"></div>
       <div class="subfield_overlay_sign" v-if="isWin">
-        <WinSign :sign="winSign"/>
+        <SubFieldWinSign :sign="winSign" :subFieldIndex="index"/>
       </div>
     </TransitionGroup>
     <Cell
         v-for="(cell, index) in field"
         :key="index"
-        :index="index"
+        :subFieldIndex="index"
         :isWin="isWin"
+        :isActiveSubField="isActiveSubField"
         @setValueToField="setValueToField"
     />
   </div>
@@ -20,12 +21,13 @@
 <script>
 import {store} from "@/stores/store.js";
 import Cell from "@/components/Cell.vue";
-import WinSign from "@/components/icons/WinSign.vue";
+import SubFieldWinSign from "@/components/icons/SubFieldWinSign.vue";
 
 export default {
-  components: {Cell, WinSign},
+  components: {Cell, SubFieldWinSign},
   data() {
     return {
+      store: null,
       show: true,
       field: [],
       changedIndex: null,
@@ -33,12 +35,18 @@ export default {
       winSign: null,
       overlayClasses: {},
       subfieldStyle: {},
+      subfieldClasses: {},
     }
   },
-  props: ['index'],
+  props: ['index', 'activeSubFieldIndex'],
+  emits: ['setValueToField'],
   watch: {
     winSign() {
       this.overlayClasses[`${store.getSignWordBySign(this.winSign)}_win`] = true
+    },
+    'store.winner'() {
+      this.subfieldClasses.subfield_nonactive = true
+
     }
   },
   methods: {
@@ -58,7 +66,9 @@ export default {
 
       if (winner !== 'nothing') {
         this.isWin = true
-        this.winSign = winner === 'draw' ? store.defaultDrawSign : findSign
+        const winSign = winner === 'draw' ? store.defaultDrawSign : findSign
+        this.winSign = winSign
+        this.$emit('setValueToField', this.index, winSign)
       }
     },
     setSubfieldStyle() {
@@ -74,18 +84,29 @@ export default {
   mounted() {
     this.fillStartField()
     this.setSubfieldStyle()
+    this.store = store
   },
+  computed: {
+    getActiveSubFieldClass() {
+      return {subfield_active: this.isActiveSubField}
+    },
+    isActiveSubField() {
+      return this.activeSubFieldIndex.includes(this.index)
+    }
+  }
 }
 </script>
 
 <style scoped>
 .subfield {
   position: relative;
+}
 
-  &:hover .cell:not(.signed,.blocked) {
-    background-color: #b6b4b4;
-    cursor: pointer;
-  }
+.subfield_active:not(.subfield_nonactive) .cell:not(.signed,.blocked) {
+  transition: background-color 0.5s ease;
+  background-color: #b6b4b4;
+  cursor: pointer;
+
 }
 
 .subfield_overlay {

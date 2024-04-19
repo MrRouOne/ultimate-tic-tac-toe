@@ -34,6 +34,7 @@ export default {
       ],
     };
   },
+  props: ['subFieldIndex'],
   emits: ['setClass'],
   computed: {
     getRandomPathBySign() {
@@ -53,6 +54,7 @@ export default {
       this.isSetSign = true
       this.$emit('setClass')
       store.swapSign()
+      store.activeSubfieldIndex = this.subFieldIndex
     },
   },
 }

@@ -4,28 +4,31 @@
         @click="setSign"
         ref="signRef"
         @setClass="setSignedClass"
+        :subFieldIndex="subFieldIndex"
     />
   </div>
 </template>
 
 <script>
 import CellSign from "@/components/icons/CellSign.vue";
+import {store} from "@/stores/store.js";
 
 export default {
   components: {CellSign},
   data() {
     return {
-      cellClasses: {}
+      cellClasses: {},
+      store: null,
     }
   },
   emits: ['setValueToField'],
-  props: ['index', 'isWin'],
+  props: ['subFieldIndex', 'isWin', 'isActiveSubField'],
   methods: {
     setSign() {
-      if (this.isWin) return
+      if (this.isWin || store.winner !== null || !this.isActiveSubField) return
 
       this.$refs.signRef.setSign();
-      this.$emit('setValueToField', this.index)
+      this.$emit('setValueToField', this.subFieldIndex)
     },
     setSignedClass() {
       this.cellClasses.signed = true
@@ -34,8 +37,17 @@ export default {
   watch: {
     isWin() {
       this.cellClasses.blocked = true
+    },
+    'store.winner'() {
+      this.cellClasses.blocked = true
+    },
+    isActiveSubField(val) {
+      this.cellClasses.blocked = !val
     }
   },
+  mounted() {
+    this.store = store
+  }
 }
 </script>
 

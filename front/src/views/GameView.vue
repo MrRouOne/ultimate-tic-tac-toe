@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex flex-column">
-    <MoveBar/>
+    <GameStatus/>
     <MainField/>
   </div>
 
@@ -8,9 +8,9 @@
 
 <script>
 import MainField from "@/components/MainField.vue";
-import MoveBar from "@/components/MoveBar.vue";
+import GameStatus from "@/components/GameStatus.vue";
 
 export default {
-  components: {MainField, MoveBar},
+  components: {MainField, GameStatus},
 }
 </script>

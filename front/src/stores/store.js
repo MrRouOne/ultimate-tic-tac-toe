@@ -2,6 +2,9 @@ import {reactive} from 'vue'
 
 export const store = reactive({
     fieldSize: 3,
+    winner: null,
+    winIndexes: [],
+    activeSubfieldIndex: null,
     sign: 'cross',
     signToArrays: 'x',
     defaultCrossColor: '#bf1919',
@@ -28,29 +31,31 @@ export const store = reactive({
             [this.defaultCrossSign]: 'cross',
             [this.defaultCircleSign]: 'circle',
         };
-        return values[sign]
+        return values[sign] ?? sign
     },
     getMaxNumberSignsForWin() {
         return Math.min(5, this.fieldSize)
     },
-    checkWinOrDraw(matrix, changedIndex, findSign) {
-        const isWin = this.checkWin(matrix, changedIndex, findSign)
-        if (isWin) return 'win';
+    checkWinOrDraw(matrix, changedIndex, findSign, isDrawOnly = false, needSetWinIndexes = false) {
+        if (!isDrawOnly) {
+            const isWin = this.checkWin(matrix, changedIndex, findSign, needSetWinIndexes)
+            if (isWin) return 'win';
+        }
         const isDraw = !matrix.some(cell => cell.length === 0);
         return isDraw ? 'draw' : 'nothing'
     },
-    checkWin(matrix, changedIndex, findSign) {
+    checkWin(matrix, changedIndex, findSign, needSetWinIndexes = false) {
         const changedIndexY = Math.floor(changedIndex / this.fieldSize)
         const changedIndexX = changedIndex - changedIndexY * this.fieldSize
 
         return (
-            this.checkWinByLine(matrix, changedIndexX, changedIndexY, findSign, true)
-            || this.checkWinByLine(matrix, changedIndexX, changedIndexY, findSign, false)
-            || this.checkWinByDiagonal(matrix, changedIndexX, changedIndexY, findSign, true)
-            || this.checkWinByDiagonal(matrix, changedIndexX, changedIndexY, findSign, false)
+            this.checkWinByLine(matrix, changedIndexX, changedIndexY, findSign, true, needSetWinIndexes)
+            || this.checkWinByLine(matrix, changedIndexX, changedIndexY, findSign, false, needSetWinIndexes)
+            || this.checkWinByDiagonal(matrix, changedIndexX, changedIndexY, findSign, true, needSetWinIndexes)
+            || this.checkWinByDiagonal(matrix, changedIndexX, changedIndexY, findSign, false, needSetWinIndexes)
         )
     },
-    checkWinByLine(matrix, x, y, findSign, isHorizontal = true) {
+    checkWinByLine(matrix, x, y, findSign, isHorizontal = true, needSetWinIndexes = false) {
         const startIndex = isHorizontal
             ? Math.max(x - this.getMaxNumberSignsForWin() + 1, 0)
             : Math.max(y - this.getMaxNumberSignsForWin() + 1, 0)
@@ -64,9 +69,13 @@ export const store = reactive({
                 : i * this.fieldSize + x
             stack[`${matrixIndex}`] = matrix[matrixIndex]
         }
-        return this.checkRowBySign(stack, findSign, this.getMaxNumberSignsForWin())
+
+        const result = this.checkRowBySign(stack, findSign, this.getMaxNumberSignsForWin())
+        if (result && needSetWinIndexes) this.setWinIndexes(stack, findSign)
+
+        return result
     },
-    checkWinByDiagonal(matrix, x, y, findSign, isDownUpDiagonal = true) {
+    checkWinByDiagonal(matrix, x, y, findSign, isDownUpDiagonal = true, needSetWinIndexes = false) {
         const diagonalLen = this.getDiagonalLenByType(x, y, isDownUpDiagonal)
         if (diagonalLen < this.getMaxNumberSignsForWin()) return false
 
@@ -99,7 +108,11 @@ export const store = reactive({
                 stack[`${topMatrixIndex}`] = matrix[topMatrixIndex]
             }
         }
-        return this.checkRowBySign(stack, findSign, this.getMaxNumberSignsForWin())
+
+        const result = this.checkRowBySign(stack, findSign, this.getMaxNumberSignsForWin())
+        if (result && needSetWinIndexes) this.setWinIndexes(stack, findSign)
+
+        return result
     },
     getDiagonalLenByType(x, y, isDownUp = true) {
         return isDownUp
@@ -130,5 +143,13 @@ export const store = reactive({
             }
         }
         return false;
+    },
+    setWinner(value) {
+        this.winner = value
+    },
+    setWinIndexes(obj, sign) {
+        this.winIndexes = Object.entries(obj)
+            .filter(([key, value]) => value === sign)
+            .map(([key, value]) => key)
     },
 })
