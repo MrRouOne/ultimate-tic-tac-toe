@@ -16,6 +16,7 @@ import {store} from "@/stores/store.js";
 export default {
   data() {
     return {
+      store: null,
       isSetSign: false,
       sign: '',
       crossPathways: [
@@ -36,6 +37,14 @@ export default {
   },
   props: ['subFieldIndex'],
   emits: ['setClass'],
+  watch: {
+    'store.restart'() {
+      this.isSetSign = false
+      this.sign = ''
+
+      this.mounted()
+    }
+  },
   computed: {
     getRandomPathBySign() {
       const pathway = this[`${this.sign}Pathways`];
@@ -47,6 +56,9 @@ export default {
     }
   },
   methods: {
+    mounted() {
+      this.store = store
+    },
     setSign() {
       if (this.isSetSign) return;
 
@@ -56,6 +68,9 @@ export default {
       store.swapSign()
       store.activeSubfieldIndex = this.subFieldIndex
     },
+  },
+  mounted() {
+    this.mounted()
   },
 }
 </script>

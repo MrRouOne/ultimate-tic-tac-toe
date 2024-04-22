@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex flex-column">
+  <div class="game">
     <GameStatus/>
     <MainField/>
   </div>
@@ -14,3 +14,12 @@ export default {
   components: {MainField, GameStatus},
 }
 </script>
+<style scoped>
+.game {
+  margin: 10rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+</style>

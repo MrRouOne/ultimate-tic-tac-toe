@@ -13,6 +13,7 @@ export const store = reactive({
     defaultCrossSign: 'x',
     defaultCircleSign: 'o',
     defaultDrawSign: '-',
+    restart: false,
     swapSign() {
         this.sign = this.sign === 'cross' ? 'circle' : 'cross'
         this.signToArrays = this.sign === 'cross' ? this.defaultCircleSign : this.defaultCrossSign
@@ -152,4 +153,16 @@ export const store = reactive({
             .filter(([key, value]) => value === sign)
             .map(([key, value]) => key)
     },
+    setFieldSize(val) {
+        this.fieldSize = val
+        this.swapRestart()
+    },
+    swapRestart() {
+        this.restart = !this.restart
+        this.winner = null
+        this.winIndexes = []
+        this.activeSubfieldIndex = null
+        this.sign = 'cross'
+        this.signToArrays = 'x'
+    }
 })

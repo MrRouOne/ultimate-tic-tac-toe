@@ -18,12 +18,25 @@ export default {
   components: {SubField},
   data() {
     return {
+      store: null,
       field: [],
       isWin: false,
       changedIndex: null,
     }
   },
+  watch: {
+    'store.restart'() {
+      this.isWin = false
+      this.changedIndex = null
+
+      this.mounted()
+    }
+  },
   methods: {
+    mounted() {
+      this.store = store
+      this.fillStartField()
+    },
     fillStartField() {
       this.field = Array(store.fieldSize * store.fieldSize).fill([])
     },
@@ -47,7 +60,7 @@ export default {
     },
   },
   mounted() {
-    this.fillStartField()
+    this.mounted()
   },
   computed: {
     mainFieldStyle() {

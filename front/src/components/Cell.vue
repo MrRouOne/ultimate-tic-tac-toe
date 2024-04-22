@@ -24,6 +24,9 @@ export default {
   emits: ['setValueToField'],
   props: ['subFieldIndex', 'isWin', 'isActiveSubField'],
   methods: {
+    mounted() {
+      this.store = store
+    },
     setSign() {
       if (this.isWin || store.winner !== null || !this.isActiveSubField) return
 
@@ -38,15 +41,20 @@ export default {
     isWin() {
       this.cellClasses.blocked = true
     },
-    'store.winner'() {
-      this.cellClasses.blocked = true
+    'store.winner'(val) {
+      this.cellClasses.blocked = val !== null
     },
     isActiveSubField(val) {
       this.cellClasses.blocked = !val
+    },
+    'store.restart'() {
+      this.cellClasses = {}
+
+      this.mounted()
     }
   },
   mounted() {
-    this.store = store
+    this.mounted()
   }
 }
 </script>

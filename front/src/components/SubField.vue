@@ -28,7 +28,6 @@ export default {
   data() {
     return {
       store: null,
-      show: true,
       field: [],
       changedIndex: null,
       isWin: false,
@@ -44,12 +43,27 @@ export default {
     winSign() {
       this.overlayClasses[`${store.getSignWordBySign(this.winSign)}_win`] = true
     },
-    'store.winner'() {
-      this.subfieldClasses.subfield_nonactive = true
+    'store.winner'(val) {
+      console.log(val !== null)
+      this.subfieldClasses.subfield_nonactive = (val !== null)
+    },
+    'store.restart'() {
+      this.changedIndex = null
+      this.isWin = false
+      this.winSign = null
+      this.overlayClasses = {}
+      this.subfieldStyle = {}
+      this.subfieldClasses = {}
 
+      this.mounted()
     }
   },
   methods: {
+    mounted() {
+      this.fillStartField()
+      this.setSubfieldStyle()
+      this.store = store
+    },
     fillStartField() {
       this.field = Array(store.fieldSize * store.fieldSize).fill([])
     },
@@ -82,9 +96,7 @@ export default {
     }
   },
   mounted() {
-    this.fillStartField()
-    this.setSubfieldStyle()
-    this.store = store
+    this.mounted()
   },
   computed: {
     getActiveSubFieldClass() {

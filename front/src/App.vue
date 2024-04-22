@@ -1,16 +1,26 @@
 <template>
-  <GameView class="w-100 h-100 d-flex justify-content-center align-items-center"/>
+  <div class="main_app">
+    <HeaderView/>
+    <GameView/>
+  </div>
 </template>
 
 <script>
 import GameView from "@/views/GameView.vue";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.js';
 import '@/assets/base.css';
+import HeaderView from "@/views/HeaderView.vue";
 
 export default {
-  components: {GameView},
+  components: {HeaderView, GameView},
 }
 </script>
 
 <style scoped>
+.main_app {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
 </style>
