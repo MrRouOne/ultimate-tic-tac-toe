@@ -1,19 +1,23 @@
 <template>
-
-  <div class="subfield" :style="subfieldStyle" :class="{...subfieldClasses,...getActiveSubFieldClass}">
+  <div
+      class="subfield"
+      :style="subfieldStyle"
+      :class="{...subfieldClasses,...getActiveSubFieldClass}"
+  >
     <TransitionGroup>
       <div :class="overlayClasses" v-if="isWin" class="subfield_overlay"></div>
       <div class="subfield_overlay_sign" v-if="isWin">
-        <SubFieldWinSign :sign="winSign" :subFieldIndex="index"/>
+        <SubFieldWinSign :sign="subfield.sign" :subFieldIndex="index"/>
       </div>
     </TransitionGroup>
     <Cell
-        v-for="(cell, index) in field"
+        v-for="(cell, index) in subfield?.field"
         :key="index"
         :subFieldIndex="index"
+        :mainFieldIndex="this.index"
         :isWin="isWin"
         :isActiveSubField="isActiveSubField"
-        @setValueToField="setValueToField"
+        :isSubHovered="isSubHovered"
     />
   </div>
 </template>
@@ -27,83 +31,61 @@ export default {
   components: {Cell, SubFieldWinSign},
   data() {
     return {
-      store: null,
-      field: [],
-      changedIndex: null,
-      isWin: false,
-      winSign: null,
       overlayClasses: {},
-      subfieldStyle: {},
       subfieldClasses: {},
     }
   },
-  props: ['index', 'activeSubFieldIndex'],
-  emits: ['setValueToField'],
+  props: ['index'],
   watch: {
-    winSign() {
-      this.overlayClasses[`${store.getSignWordBySign(this.winSign)}_win`] = true
-    },
-    'store.winner'(val) {
-      console.log(val !== null)
+    winner(val) {
       this.subfieldClasses.subfield_nonactive = (val !== null)
     },
-    'store.restart'() {
-      this.changedIndex = null
-      this.isWin = false
-      this.winSign = null
+    subfield: {
+      handler(newVal) {
+        if (newVal?.sign === null) return
+
+        this.overlayClasses[`${store.getSignWordBySign(this.subfield.sign)}_win`] = true
+      },
+      deep: true
+    },
+    'restart'() {
       this.overlayClasses = {}
-      this.subfieldStyle = {}
       this.subfieldClasses = {}
-
-      this.mounted()
-    }
+    },
   },
-  methods: {
-    mounted() {
-      this.fillStartField()
-      this.setSubfieldStyle()
-      this.store = store
+  computed: {
+    restart() {
+      return store.restart
     },
-    fillStartField() {
-      this.field = Array(store.fieldSize * store.fieldSize).fill([])
+    isWin() {
+      return this.subfield.sign !== null
     },
-    setValueToField(index) {
-      if (this.field[index].length !== 0) return;
-
-      this.field[index] = store.signToArrays
-      this.changedIndex = index
-      this.checkWin()
+    winner() {
+      return store.winner
     },
-    checkWin() {
-      const findSign = this.field[this.changedIndex]
-      const winner = store.checkWinOrDraw(this.field, this.changedIndex, findSign)
-
-      if (winner !== 'nothing') {
-        this.isWin = true
-        const winSign = winner === 'draw' ? store.defaultDrawSign : findSign
-        this.winSign = winSign
-        this.$emit('setValueToField', this.index, winSign)
-      }
+    subfield() {
+      return store?.singleField?.[this.index]
     },
-    setSubfieldStyle() {
-      this.subfieldStyle = {
+    subfieldStyle() {
+      return {
         display: 'grid',
         padding: '8px',
         gridTemplateColumns: `repeat(${store.fieldSize}, 2fr)`,
-        borderTop: (this.index + 1) > store.fieldSize ? 'solid 10px #2ecc71' : '',
-        borderRight: (this.index + 1) % store.fieldSize !== 0 ? 'solid 10px #2ecc71' : '',
+        borderTop: (this.index + 1) > store.fieldSize ? `solid 10px ${this.getBorderColor}` : '',
+        borderRight: (this.index + 1) % store.fieldSize !== 0 ? `solid 10px ${this.getBorderColor}` : '',
       }
-    }
-  },
-  mounted() {
-    this.mounted()
-  },
-  computed: {
+    },
+    getBorderColor() {
+      return store.gameWithBot === null ? '#2ebacc' : store.gameWithBot === 'light' ? '#2ecc71' : '#cca72e'
+    },
     getActiveSubFieldClass() {
       return {subfield_active: this.isActiveSubField}
     },
     isActiveSubField() {
-      return this.activeSubFieldIndex.includes(this.index)
+      return store.getActiveFieldIndex().includes(this.index)
+    },
+    isSubHovered() {
+      return store?.hoveredIndexes?.includes(this.index)
     }
   }
 }
@@ -118,7 +100,6 @@ export default {
   transition: background-color 0.5s ease;
   background-color: #b6b4b4;
   cursor: pointer;
-
 }
 
 .subfield_overlay {
@@ -158,4 +139,5 @@ export default {
 .v-leave-to {
   opacity: 0;
 }
+
 </style>

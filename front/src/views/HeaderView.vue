@@ -16,6 +16,14 @@
             </li>
           </ul>
         </li>
+        <li
+            class="nav-link link-secondary"
+            @click="swapBotGame"
+            :style="getBotLiColorStyle"
+        >
+          Игра с {{ botGame === null ? 'человеком' : 'ботом ' }}
+          {{ botGame === 'light' ? '(легкий)' : botGame === 'medium' ? '(средний)' : '' }}
+        </li>
       </ul>
     </div>
   </header>
@@ -28,7 +36,7 @@ export default {
   data() {
     return {
       currentFieldSize: '3x3',
-      possibleFieldSizes: [2, 3, 4, 5, 6, 7, 8]
+      possibleFieldSizes: [2, 3, 4, 5, 6, 7, 8],
     }
   },
   methods: {
@@ -38,7 +46,18 @@ export default {
     },
     restart() {
       store.swapRestart()
+    },
+    swapBotGame() {
+      store.swapBotGame()
     }
+  },
+  computed: {
+    botGame() {
+      return store.gameWithBot
+    },
+    getBotLiColorStyle() {
+      return {color: (store.gameWithBot === null ? '#2ebacc' : store.gameWithBot === 'light' ? '#2ecc71' : '#cca72e') + '!important'}
+    },
   }
 }
 </script>
