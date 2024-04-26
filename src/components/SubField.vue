@@ -1,13 +1,23 @@
 <template>
   <div
       class="subfield"
+      :class="subfieldClasses"
       :style="subfieldStyle"
-      :class="{...subfieldClasses,...getActiveSubFieldClass}"
   >
     <TransitionGroup>
-      <div :class="overlayClasses" v-if="isWin" class="subfield_overlay"></div>
-      <div class="subfield_overlay_sign" v-if="isWin">
-        <SubFieldWinSign :sign="subfield.sign" :subFieldIndex="index"/>
+      <div
+          class="subfield_overlay"
+          :style="overlayStyle"
+          v-if="isWin"
+      />
+      <div
+          class="subfield_overlay_sign"
+          v-if="isWin"
+      >
+        <SubFieldWinSign
+            :sign="subfield.sign"
+            :subFieldIndex="index"
+        />
       </div>
     </TransitionGroup>
     <Cell
@@ -15,9 +25,7 @@
         :key="index"
         :subFieldIndex="index"
         :mainFieldIndex="this.index"
-        :isWin="isWin"
         :isActiveSubField="isActiveSubField"
-        :isSubHovered="isSubHovered"
     />
   </div>
 </template>
@@ -30,41 +38,29 @@ import SubFieldWinSign from "@/components/icons/SubFieldWinSign.vue";
 export default {
   components: {Cell, SubFieldWinSign},
   data() {
-    return {
-      overlayClasses: {},
-      subfieldClasses: {},
-    }
+    return {}
   },
   props: ['index'],
-  watch: {
-    winner(val) {
-      this.subfieldClasses.subfield_nonactive = (val !== null)
-    },
-    subfield: {
-      handler(newVal) {
-        if (newVal?.sign === null) return
-
-        this.overlayClasses[`${store.getSignWordBySign(this.subfield.sign)}_win`] = true
-      },
-      deep: true
-    },
-    'restart'() {
-      this.overlayClasses = {}
-      this.subfieldClasses = {}
-    },
-  },
   computed: {
-    restart() {
-      return store.restart
+    subfield() {
+      return store?.singleField?.[this.index]
+    },
+
+    isActiveSubField() {
+      return store.getActiveFieldIndex().includes(this.index)
     },
     isWin() {
       return this.subfield.sign !== null
     },
-    winner() {
-      return store.winner
+    getBorderColor() {
+      // TODO: из енама
+      return store.gameWithBot === null ? '#2ebacc' : store.gameWithBot === 'light' ? '#2ecc71' : '#cca72e'
     },
-    subfield() {
-      return store?.singleField?.[this.index]
+    subfieldClasses() {
+      return {
+        subfield_nonactive: store.winner !== null,
+        subfield_active: this.isActiveSubField
+      }
     },
     subfieldStyle() {
       return {
@@ -75,18 +71,12 @@ export default {
         borderRight: (this.index + 1) % store.fieldSize !== 0 ? `solid 10px ${this.getBorderColor}` : '',
       }
     },
-    getBorderColor() {
-      return store.gameWithBot === null ? '#2ebacc' : store.gameWithBot === 'light' ? '#2ecc71' : '#cca72e'
+    overlayStyle() {
+      return {
+        // TODO: из енама
+        backgroundColor: this.subfield.sign === store.defaultDrawSign ? 'rgba(163,163,19,0.7)' : this.subfield.sign === store.defaultCircleSign ? 'rgba(14,83,136,0.5)' : this.subfield.sign === store.defaultCrossSign ? 'rgba(131,13,13,0.5)' : '',
+      }
     },
-    getActiveSubFieldClass() {
-      return {subfield_active: this.isActiveSubField}
-    },
-    isActiveSubField() {
-      return store.getActiveFieldIndex().includes(this.index)
-    },
-    isSubHovered() {
-      return store?.hoveredIndexes?.includes(this.index)
-    }
   }
 }
 </script>
@@ -113,21 +103,6 @@ export default {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-}
-
-.draw_win {
-  opacity: 0.7;
-  background-color: #a3a313;
-}
-
-.circle_win {
-  opacity: 0.5;
-  background-color: #0e5388;
-}
-
-.cross_win {
-  opacity: 0.5;
-  background-color: #830d0d;
 }
 
 .v-enter-active,

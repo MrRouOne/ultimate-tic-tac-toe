@@ -2,27 +2,40 @@
   <header class="header">
     <div class="container">
       <ul class="nav justify-content-end">
-        <li class="nav-link link-secondary" @click="restart">Рестарт</li>
+
+        <li
+            class="nav-link link-secondary"
+            @click="restart"
+        >
+          Рестарт
+        </li>
+
         <li class="dropdown nav-link px-2">
-          <div class="link-secondary drop" data-bs-toggle="dropdown">
+          <div
+              class="link-secondary drop"
+              data-bs-toggle="dropdown"
+          >
             Размерность поля ({{ currentFieldSize }})
           </div>
+
           <ul class="dropdown-menu dropdown-menu-dark">
             <li
                 v-for="size in possibleFieldSizes"
                 class="dropdown-item"
                 @click="setFieldSize(size)"
-            >{{ size + 'x' + size }}
+            >
+              {{ size + 'x' + size }}
             </li>
           </ul>
         </li>
+
         <li
-            class="nav-link link-secondary"
+            class="nav-link link-secondary link_bot"
             @click="swapBotGame"
             :style="getBotLiColorStyle"
         >
-          Игра с {{ botGame === null ? 'человеком' : 'ботом ' }}
-          {{ botGame === 'light' ? '(легкий)' : botGame === 'medium' ? '(средний)' : '' }}
+          <!--          TODO: refactor-->
+          Игра с {{ botGame === null ? 'человеком' : 'ботом ' + getBotDifficultyText}}
         </li>
       </ul>
     </div>
@@ -56,8 +69,13 @@ export default {
       return store.gameWithBot
     },
     getBotLiColorStyle() {
+      // TODO: цвета в енам
       return {color: (store.gameWithBot === null ? '#2ebacc' : store.gameWithBot === 'light' ? '#2ecc71' : '#cca72e') + '!important'}
     },
+    getBotDifficultyText() {
+      // TODO: из енама
+      return this.botGame === 'light' ? '(легкий)' : this.botGame === 'medium' ? '(средний)' : ''
+    }
   }
 }
 </script>
@@ -78,5 +96,10 @@ export default {
 
 li {
   cursor: pointer;
+}
+
+.link_bot:hover {
+  transition: opacity 0.3s;
+  opacity: 0.8;
 }
 </style>

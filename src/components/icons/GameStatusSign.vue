@@ -15,7 +15,8 @@ export default {
   props: ['sign'],
   computed: {
     getViewBox() {
-    return  this.sign !== null ? signsStore?.getViewBox(store.getSignWordBySign(this.sign)) : signsStore?.getViewBox()
+      // TODO все на енамы
+      return this.sign !== null ? signsStore?.getViewBox(store.getSignWordBySign(this.sign)) : signsStore?.getViewBox()
     },
     getPath() {
       return this.sign !== null ? signsStore?.getPath(store.getSignWordBySign(this.sign)) : signsStore?.getPath()

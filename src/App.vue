@@ -6,10 +6,10 @@
 </template>
 
 <script>
-import GameView from "@/views/GameView.vue";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.js';
 import '@/assets/base.css';
+import GameView from "@/views/GameView.vue";
 import HeaderView from "@/views/HeaderView.vue";
 
 export default {

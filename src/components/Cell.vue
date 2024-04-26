@@ -1,13 +1,13 @@
 <template>
-  <div class="cell"
-       :class="{...cellClasses,...expandAllCellClass,...botMotionClass,...subHoveredClass,...blockedClass}">
+  <div
+      class="cell"
+      :class="cellClasses"
+  >
     <CellSign
         @mouseover="setHovered(true)"
         @mouseleave="setHovered(false)"
         @click="setSign"
-        ref="signRef"
-        @setClass="setSignedClass"
-        :subFieldIndex="subFieldIndex"
+        :cell="cell"
     />
   </div>
 </template>
@@ -20,19 +20,18 @@ export default {
   components: {CellSign},
   data() {
     return {
-      cellClasses: {},
       store: null,
     }
   },
-  props: ['subFieldIndex', 'mainFieldIndex', 'isWin', 'isActiveSubField', 'isSubHovered'],
+  props: ['subFieldIndex', 'mainFieldIndex', 'isActiveSubField'],
   methods: {
-    mounted() {
-      this.store = store
-    },
     setSign() {
-      if (this.isWin || store.winner !== null || !this.isActiveSubField || store.isBotMotion) return
+      if (store.winner !== null || !this.isActiveSubField || store.isBotMotion) return
 
       store.setSignToSingleField(this.mainFieldIndex, this.subFieldIndex)
+      store.swapSign()
+      store.activeSubfieldIndex = this.subFieldIndex
+
       this.setHovered(false)
 
       if (store.winner === null && store.gameWithBot !== null) {
@@ -43,17 +42,11 @@ export default {
         }, 500)
       }
     },
-    setSignedClass() {
-      this.cellClasses.signed = true
-    },
     setHovered(val) {
       if (
           this.isActiveSubField
-          && (
-              Object.keys(this.cellClasses).length === 0
-              || Object.values(this.cellClasses).every(value => value === false)
-          )
-          && !this.botMotionClass.bot_move
+          && !store.isBotMotion
+          && !this.isSigned
       ) {
         store.setHoveredIndexes(this.subFieldIndex, val)
       }
@@ -63,38 +56,34 @@ export default {
     cell() {
       return store?.singleField?.[this.mainFieldIndex]?.field?.[this.subFieldIndex]
     },
-    fillIndexes() {
-      return store.getNonActiveFieldIndex()
+
+    isSigned() {
+      return !Array.isArray(this.cell)
     },
-    expandAllCellClass() {
-      return {expand_all_cell: this.isActiveSubField && store.getNonActiveFieldIndex().includes(this.subFieldIndex)}
+    isBlocked() {
+      return store.winner !== null || !this.isActiveSubField
     },
-    botMotionClass() {
-      return {bot_move: store.isBotMotion && this.isActiveSubField}
+    isExpandAllCell() {
+      return this.isActiveSubField && store.getNonActiveFieldIndex().includes(this.subFieldIndex)
     },
-    subHoveredClass() {
-      return {sub_hovered: this.isSubHovered && store.winner === null}
+    isBotMove() {
+      return store.isBotMotion && this.isActiveSubField
     },
-    blockedClass() {
-      return {blocked: this.isWin || store.winner !== null || !this.isActiveSubField}
-    }
+    isSubHovered() {
+      return store?.hoveredIndexes?.includes(this.mainFieldIndex) && store.winner === null
+    },
+
+    cellClasses() {
+      return {
+        signed: this.isSigned,
+        blocked: this.isBlocked,
+        expand_all_cell: this.isExpandAllCell,
+        bot_move: this.isBotMove,
+        sub_hovered: this.isSubHovered,
+      }
+    },
   },
   watch: {
-    cell: {
-      handler(val) {
-        if (val?.length === 0) return
-        this.$refs.signRef.setSign();
-      },
-      deep: true
-    },
-    'store.restart'() {
-      this.cellClasses = {}
-
-      this.mounted()
-    },
-  },
-  mounted() {
-    this.mounted()
   },
 }
 </script>

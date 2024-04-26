@@ -3,7 +3,8 @@
     <div
         class="game_status_text"
         :style="{marginRight: !isDraw ? '1rem' : ''}"
-    >{{ getStatusText }}
+    >
+      {{ getStatusText }}
     </div>
     <GameStatusSign
         v-if="!isDraw"
