@@ -13,39 +13,29 @@
 </template>
 
 <script>
-import CellSign from "@/components/icons/CellSign.vue";
+import CellSign from "@/components/Cell/CellSign.vue";
 import {store} from "@/stores/store.js";
 
 export default {
   components: {CellSign},
   data() {
-    return {
-      store: null,
-    }
+    return {}
   },
   props: ['subFieldIndex', 'mainFieldIndex', 'isActiveSubField'],
   methods: {
     setSign() {
-      if (store.winner !== null || !this.isActiveSubField || store.isBotMotion) return
+      if (store.isWinnerExist() || !this.isActiveSubField || store.getIsBotMotion() || this.isSigned) return
 
-      store.setSignToSingleField(this.mainFieldIndex, this.subFieldIndex)
-      store.swapSign()
-      store.activeSubfieldIndex = this.subFieldIndex
+      store.moveInField(this.mainFieldIndex, this.subFieldIndex)
 
-      this.setHovered(false)
-
-      if (store.winner === null && store.gameWithBot !== null) {
-        store.isBotMotion = true
-        setTimeout(() => {
-          store.botMotion()
-          store.isBotMotion = false
-        }, 500)
+      if (!store.isWinnerExist() && store.isGameWithBot()) {
+        store.botMotion()
       }
     },
     setHovered(val) {
       if (
           this.isActiveSubField
-          && !store.isBotMotion
+          && !store.getIsBotMotion()
           && !this.isSigned
       ) {
         store.setHoveredIndexes(this.subFieldIndex, val)
@@ -54,23 +44,23 @@ export default {
   },
   computed: {
     cell() {
-      return store?.singleField?.[this.mainFieldIndex]?.field?.[this.subFieldIndex]
+      return store?.getSingleField(this.mainFieldIndex, this.subFieldIndex)
     },
 
     isSigned() {
       return !Array.isArray(this.cell)
     },
     isBlocked() {
-      return store.winner !== null || !this.isActiveSubField
+      return store.isWinnerExist() || !this.isActiveSubField
     },
     isExpandAllCell() {
-      return this.isActiveSubField && store.getNonActiveFieldIndex().includes(this.subFieldIndex)
+      return this.isActiveSubField && store.getIndexesByEmptyCondition(false).includes(this.subFieldIndex)
     },
     isBotMove() {
-      return store.isBotMotion && this.isActiveSubField
+      return store.getIsBotMotion() && this.isActiveSubField
     },
     isSubHovered() {
-      return store?.hoveredIndexes?.includes(this.mainFieldIndex) && store.winner === null
+      return store?.getHoveredIndexes()?.includes(this.mainFieldIndex) && !store.isWinnerExist()
     },
 
     cellClasses() {
@@ -82,8 +72,6 @@ export default {
         sub_hovered: this.isSubHovered,
       }
     },
-  },
-  watch: {
   },
 }
 </script>

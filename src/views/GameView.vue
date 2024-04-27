@@ -8,7 +8,7 @@
 
 <script>
 import MainField from "@/components/MainField.vue";
-import GameStatus from "@/components/GameStatus.vue";
+import GameStatus from "@/components/GameStatus/GameStatus.vue";
 import {store} from "@/stores/store.js";
 
 export default {

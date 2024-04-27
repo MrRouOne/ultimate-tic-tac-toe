@@ -31,11 +31,10 @@
 
         <li
             class="nav-link link-secondary link_bot"
-            @click="swapBotGame"
-            :style="getBotLiColorStyle"
+            @click="swapGameDifficulty"
+            :style="getGameDifficultyLiColorStyle"
         >
-          <!--          TODO: refactor-->
-          Игра с {{ botGame === null ? 'человеком' : 'ботом ' + getBotDifficultyText}}
+          {{ getGameDifficultyText }}
         </li>
       </ul>
     </div>
@@ -58,24 +57,29 @@ export default {
       this.currentFieldSize = (val + 'x' + val)
     },
     restart() {
-      store.swapRestart()
+      store.restart()
     },
-    swapBotGame() {
+    swapGameDifficulty() {
       store.swapBotGame()
-    }
+    },
   },
   computed: {
-    botGame() {
-      return store.gameWithBot
+    gameDifficulty() {
+      return store.getBotDifficulty()
     },
-    getBotLiColorStyle() {
-      // TODO: цвета в енам
-      return {color: (store.gameWithBot === null ? '#2ebacc' : store.gameWithBot === 'light' ? '#2ecc71' : '#cca72e') + '!important'}
+    getGameDifficultyLiColorStyle() {
+      return {
+        color: store.botDifficultyEnum?.[this.gameDifficulty].style.color + '!important'
+      }
     },
     getBotDifficultyText() {
-      // TODO: из енама
-      return this.botGame === 'light' ? '(легкий)' : this.botGame === 'medium' ? '(средний)' : ''
-    }
+      return this.gameDifficulty === store.botDifficultyEnum.light.word
+          ? '(легкий)'
+          : this.gameDifficulty === store.botDifficultyEnum.medium.word ? '(средний)' : ''
+    },
+    getGameDifficultyText() {
+      return 'Игра с ' + (!store.isGameWithBot() ? 'человеком' : 'ботом ') + this.getBotDifficultyText
+    },
   }
 }
 </script>

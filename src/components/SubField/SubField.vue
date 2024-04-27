@@ -32,8 +32,8 @@
 
 <script>
 import {store} from "@/stores/store.js";
-import Cell from "@/components/Cell.vue";
-import SubFieldWinSign from "@/components/icons/SubFieldWinSign.vue";
+import Cell from "@/components/Cell/Cell.vue";
+import SubFieldWinSign from "@/components/SubField/SubFieldWinSign.vue";
 
 export default {
   components: {Cell, SubFieldWinSign},
@@ -43,22 +43,20 @@ export default {
   props: ['index'],
   computed: {
     subfield() {
-      return store?.singleField?.[this.index]
+      return store?.getSingleField(this.index)
     },
-
     isActiveSubField() {
-      return store.getActiveFieldIndex().includes(this.index)
+      return store.getActiveMainFieldIndexes().includes(this.index)
     },
     isWin() {
       return this.subfield.sign !== null
     },
     getBorderColor() {
-      // TODO: из енама
-      return store.gameWithBot === null ? '#2ebacc' : store.gameWithBot === 'light' ? '#2ecc71' : '#cca72e'
+      return store.botDifficultyEnum?.[store.getBotDifficulty()].style.color
     },
     subfieldClasses() {
       return {
-        subfield_nonactive: store.winner !== null,
+        subfield_nonactive: store.isWinnerExist(),
         subfield_active: this.isActiveSubField
       }
     },
@@ -66,15 +64,14 @@ export default {
       return {
         display: 'grid',
         padding: '8px',
-        gridTemplateColumns: `repeat(${store.fieldSize}, 2fr)`,
-        borderTop: (this.index + 1) > store.fieldSize ? `solid 10px ${this.getBorderColor}` : '',
-        borderRight: (this.index + 1) % store.fieldSize !== 0 ? `solid 10px ${this.getBorderColor}` : '',
+        gridTemplateColumns: `repeat(${store.getFieldSize()}, 2fr)`,
+        borderTop: (this.index + 1) > store.getFieldSize() ? `solid 10px ${this.getBorderColor}` : '',
+        borderRight: (this.index + 1) % store.getFieldSize() !== 0 ? `solid 10px ${this.getBorderColor}` : '',
       }
     },
     overlayStyle() {
       return {
-        // TODO: из енама
-        backgroundColor: this.subfield.sign === store.defaultDrawSign ? 'rgba(163,163,19,0.7)' : this.subfield.sign === store.defaultCircleSign ? 'rgba(14,83,136,0.5)' : this.subfield.sign === store.defaultCrossSign ? 'rgba(131,13,13,0.5)' : '',
+        backgroundColor: store.signEnums?.[this.subfield.sign]?.mainFieldStyle?.backgroundColor,
       }
     },
   }

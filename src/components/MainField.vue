@@ -1,7 +1,7 @@
 <template>
   <div :style="mainFieldStyle">
     <SubField
-        v-for="(cell, index) in singleField"
+        v-for="(cell, index) in field"
         :key="index"
         :index="index"
     />
@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import SubField from "@/components/SubField.vue";
+import SubField from "@/components/SubField/SubField.vue";
 import {store} from "@/stores/store.js";
 
 export default {
@@ -18,13 +18,13 @@ export default {
     return {}
   },
   computed: {
-    singleField() {
-      return store?.singleField
+    field() {
+      return store?.getSingleField()
     },
     mainFieldStyle() {
       return {
         display: 'grid',
-        gridTemplateColumns: `repeat(${store.fieldSize}, 2fr)`
+        gridTemplateColumns: `repeat(${store.getFieldSize()}, 2fr)`
       };
     },
   },
